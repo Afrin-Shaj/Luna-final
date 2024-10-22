@@ -1,164 +1,193 @@
-import { useState } from 'react';
-import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash, FaSpinner, FaMoon } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import axios from 'axios';
 
 const LoginSignupPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [isLogin, setIsLogin] = useState(false);
+  const [formData, setFormData] = useState({
+    Name: "",   // Updated from "firstName" to "Name"
+    email: "",
+    password: ""
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // Email validation
   const validateEmail = (email) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return re.test(email);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    // Simulating API call
-    setTimeout(() => {
-      setLoading(false);
-      // Reset form and errors after submission
-      setUsername("");
-      setEmail("");
-      setPassword("");
-      setErrors({});
-    }, 2000);
-  };
+  // Handle input changes and validate
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
-  const handleInputChange = (e, field) => {
-    const value = e.target.value;
-    if (field === "username") setUsername(value);
-    if (field === "email") {
-      setEmail(value);
+    // Validation
+    if (name === "email") {
       if (!validateEmail(value) && value !== "") {
-        setErrors({ ...errors, email: "Invalid email format" });
+        setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
       } else {
-        setErrors({ ...errors, email: null });
+        setErrors((prev) => ({ ...prev, email: null }));
       }
     }
-    if (field === "password") {
-      setPassword(value);
+    if (name === "password") {
       if (value.length < 8 && value !== "") {
-        setErrors({ ...errors, password: "Password must be at least 8 characters" });
+        setErrors((prev) => ({ ...prev, password: "Password must be at least 8 characters" }));
       } else {
-        setErrors({ ...errors, password: null });
+        setErrors((prev) => ({ ...prev, password: null }));
+      }
+    }
+  };
+
+  // Handle form submit (login/signup)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const apiUrl = isLogin ? '/api/auth/login' : '/api/auth/signup';
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      ...(isLogin ? {} : { name: formData.Name })  // Include 'name' only during signup
+    };
+
+    try {
+      const res = await axios.post(apiUrl, payload);
+      localStorage.setItem('token', res.data.token);  // Store token on successful login/signup
+
+      // Reset form and navigate
+      setFormData({ Name: "", email: "", password: "" });
+      setErrors({});
+      setLoading(false);
+      if (isLogin) {
+        navigate("/home");  // Navigate to home on login
+      } else {
+        navigate("/user-input");  // Navigate to user input on signup
+      }
+    } catch (err) {
+      setLoading(false);
+      if (err.response && err.response.data) {
+        setErrors((prev) => ({ ...prev, form: err.response.data.msg }));
+      } else {
+        setErrors((prev) => ({ ...prev, form: "Something went wrong!" }));
       }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 to-purple-700 p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-purple-800 mb-6">
-          {isLogin ? "Login" : "Sign Up"}
-        </h2>
+    <div className="min-h-screen flex flex-col items-center justify-start bg-purple-500 relative overflow-hidden py-12">
+      <div className="absolute inset-0 overflow-hidden">
+        <svg className="absolute bottom-0 left-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <path fill="rgba(76, 29, 149, 0.5)" fillOpacity="1" d="M0,128L48,138.7C96,149,192,171,288,165.3C384,160,480,128,576,128C672,128,768,160,864,165.3C960,171,1056,149,1152,133.3C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+      </div>
+
+      <div className="flex items-center justify-center mb-8 z-10">
+        <FaMoon className="text-white text-4xl mr-2" />
+        <h1 className="text-white text-5xl font-bold">LunaQ</h1>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md relative z-10">
+        <h2 className="text-3xl font-bold text-center mb-2">{isLogin ? "Log in" : "Sign up"}</h2>
+        <p className="text-center text-gray-600 mb-6">
+          {isLogin ? "Access your LunaQ account" : "Join LunaQ for personalized wisdom light your path."}
+        </p>
+
+        <button className="w-full py-2 px-4 border border-gray-300 rounded-md flex items-center justify-center mb-6 hover:bg-gray-50 transition-colors">
+          <FcGoogle className="mr-2" />
+          <span>{isLogin ? "Log in" : "Sign up"} with Google</span>
+        </button>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={username}
-                onChange={(e) => handleInputChange(e, "username")}
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
-                placeholder="johndoe"
-                autoComplete="username"
-                aria-label="Username"
-              />
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label htmlFor="Name" className="sr-only">Name</label>
+                <input
+                  type="text"
+                  id="Name"
+                  name="Name"
+                  value={formData.Name}
+                  onChange={handleInputChange}  // Proper input handling for Name
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Name*"
+                  required
+                />
+              </div>
             </div>
           )}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
+            <label htmlFor="email" className="sr-only">Email</label>
             <input
               type="email"
               id="email"
               name="email"
-              value={email}
-              onChange={(e) => handleInputChange(e, "email")}
-              className={`mt-2 block w-full rounded-md shadow-sm focus:ring focus:ring-purple-500 focus:ring-opacity-50 transition duration-150 ease-in-out ${
-                errors.email ? "border-red-500" : "border-gray-300 focus:border-purple-500"
-              }`}
-              placeholder="you@example.com"
-              autoComplete="email"
-              aria-label="Email"
-              aria-invalid={errors.email ? "true" : "false"}
-              aria-describedby={errors.email ? "email-error" : undefined}
+              value={formData.email}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.email ? "border-red-500" : "border-gray-300"}`}
+              placeholder="Email*"
+              required
             />
-            {errors.email && (
-              <p id="email-error" className="mt-2 text-sm text-red-600" role="alert">
-                {errors.email}
-              </p>
-            )}
+            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
+            <label htmlFor="password" className="sr-only">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                value={password}
-                onChange={(e) => handleInputChange(e, "password")}
-                className={`mt-2 block w-full rounded-md shadow-sm focus:ring focus:ring-purple-500 focus:ring-opacity-50 transition duration-150 ease-in-out ${
-                  errors.password ? "border-red-500" : "border-gray-300 focus:border-purple-500"
-                }`}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                aria-label="Password"
-                aria-invalid={errors.password ? "true" : "false"}
-                aria-describedby={errors.password ? "password-error" : undefined}
+                value={formData.password}
+                onChange={handleInputChange}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.password ? "border-red-500" : "border-gray-300"}`}
+                placeholder="Password*"
+                required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
-                {showPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                ) : (
-                  <FaEye className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                )}
+                {showPassword ? <FaEyeSlash className="h-5 w-5 text-gray-400" /> : <FaEye className="h-5 w-5 text-gray-400" />}
               </button>
             </div>
-            {errors.password && (
-              <p id="password-error" className="mt-2 text-sm text-red-600" role="alert">
-                {errors.password}
-              </p>
-            )}
+            {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
           </div>
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               disabled={loading}
             >
-              {loading ? (
-                <FaSpinner className="animate-spin h-5 w-5 mr-3" />
-              ) : (
-                isLogin ? "Login" : "Sign Up"
-              )}
+              {loading ? <FaSpinner className="animate-spin h-5 w-5 mr-3" /> : isLogin ? "Log in" : "Sign up"}
             </button>
           </div>
         </form>
+
+        {/* Form error */}
+        {errors.form && <p className="mt-2 text-center text-red-600">{errors.form}</p>}
+
         <div className="mt-6 text-center">
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-purple-600 hover:text-purple-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+            className="text-sm font-medium text-purple-600 hover:text-purple-500"
           >
-            {isLogin ? "Need an account? Sign Up" : "Already have an account? Login"}
+            {isLogin ? "Need an account? Sign Up" : "Already have an account? Log in"}
           </button>
+
+          {isLogin && (
+            <button
+              onClick={() => navigate("/forgot-password")}
+              className="ml-4 text-sm text-gray-600 hover:text-gray-500"
+            >
+              Forgot your password?
+            </button>
+          )}
         </div>
       </div>
     </div>

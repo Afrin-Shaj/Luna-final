@@ -1,21 +1,29 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
-import axios from "axios"; 
-import { useProfile } from "../context/UserContext"; // Import the custom hook
+import axios from "axios"; // Assuming you will be using this for email sending and backend updates.
 
 const ProfilePage = () => {
-  const { profile, setProfile } = useProfile(); // Get profile and setProfile from context
+  const [profile, setProfile] = useState({
+    name: "Luna",
+    email: "luna@example.com",
+    preferences: "Motivation, Self-improvement",
+    religion: "Christianity",
+    interest: "Sports, Meme",
+    profession: "Software Engineer",
+  });
   const [editable, setEditable] = useState(false);
-  const [timeTrigger, setTimeTrigger] = useState(""); 
+  const [timeTrigger, setTimeTrigger] = useState(""); // Time input for email trigger
 
+  // Placeholder for backend email trigger logic
   useEffect(() => {
     if (timeTrigger) {
+      // This should ideally send a request to the backend to trigger the email
       console.log("Email will be triggered at:", timeTrigger);
     }
   }, [timeTrigger]);
 
   const handleInputChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value }); // Update context state
+    setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
   const handleSave = () => {
@@ -143,6 +151,7 @@ const ProfilePage = () => {
           </div>
         </section>
 
+        {/* Section for setting up a time trigger for automatic email */}
         <section className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-4">Set Time for Email Notification</h2>
           <div className="flex flex-col md:flex-row items-center gap-4">

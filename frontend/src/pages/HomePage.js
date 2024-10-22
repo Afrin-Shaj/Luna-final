@@ -1,8 +1,6 @@
-// HomePage.js
-import React, { useState } from "react";  
+import React, { useState } from "react"; 
 import { FaMoon, FaSearch, FaHeart, FaUser, FaSmile, FaSadTear, FaMeh, FaGrinStars } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext'; // Import the context
+import { useNavigate, Link } from 'react-router-dom';
 
 const quotesData = {
   Happy: [
@@ -24,10 +22,9 @@ const quotesData = {
 };
 
 const HomePage = () => {
-  const { profile } = useUser(); // Get profile from context
   const [mood, setMood] = useState(null);
   const [quote, setQuote] = useState("");
-  const [selectedMood, setSelectedMood] = useState(""); 
+  const [selectedMood, setSelectedMood] = useState(""); // Store selected mood
   const navigate = useNavigate();
 
   const moodOptions = [
@@ -39,7 +36,7 @@ const HomePage = () => {
 
   const handleMoodSelection = (selectedMood) => {
     setMood(selectedMood);
-    setSelectedMood(selectedMood);
+    setSelectedMood(selectedMood); // Set the selected mood
     const randomQuote = quotesData[selectedMood][Math.floor(Math.random() * quotesData[selectedMood].length)];
     setQuote(randomQuote);
   };
@@ -57,37 +54,71 @@ const HomePage = () => {
             className="w-full md:w-1/4 bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105 cursor-pointer"
             onClick={() => navigate("/profile")}
           >
-            <h2 className="text-xl font-semibold mb-2">User Profile</h2>
-            <p>Name: {profile.name}</p>
-            <p>Email: {profile.email}</p>
-            <p>Preferences: {profile.preferences}</p>
-            <p>Religion: {profile.religion}</p>
-            <p>Interest: {profile.interest}</p>
-            <p>Profession: {profile.profession}</p>
+            <h2 className="text-xl font-semibold mb-2 flex items-center">
+              <FaUser className="mr-2" /> Profile
+            </h2>
+            <p>Welcome back, Luna!</p>
           </div>
 
-          <div className="w-full md:w-3/4 bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-4">Choose Your Mood</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {moodOptions.map((option) => (
-                <div 
-                  key={option.label}
-                  className={`flex flex-col items-center justify-center p-4 border rounded-lg cursor-pointer transition duration-200 ${option.color} hover:scale-105`}
-                  onClick={() => handleMoodSelection(option.label)}
-                >
-                  {option.icon}
-                  <span className="mt-2">{option.label}</span>
-                </div>
-              ))}
-            </div>
+          <div 
+            className="w-full md:w-1/4 bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105 cursor-pointer"
+            onClick={() => navigate("/favorites")}
+          >
+            <h2 className="text-xl font-semibold mb-2 flex items-center">
+              <FaHeart className="mr-2" /> Favorites
+            </h2>
+            <p>You have 5 favorite quotes.</p>
+          </div>
 
-            {quote && (
-              <div className="mt-6 p-4 border border-purple-300 rounded-lg">
-                <h3 className="text-xl font-semibold">Your Quote:</h3>
-                <p className="italic">"{quote}"</p>
-              </div>
+          {/* Stylish Search Bar */}
+          <div className="w-full md:w-1/2 bg-white rounded-full shadow-md p-3 flex items-center space-x-3 transition-transform hover:scale-105">
+            <FaSearch className="text-purple-500 text-xl" />
+            <input
+              type="text"
+              placeholder="Search for quotes..."
+              className="w-full p-2 border-none rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-inner"
+            />
+          </div>
+        </section>
+
+        <section className="bg-white rounded-lg shadow-md p-6 transition-all hover:shadow-lg mt-8">
+          <h2 className="text-2xl font-bold mb-4">Quote of the Day</h2>
+          <Link 
+            to="/quote-detail" 
+            state={{ quote }} // Pass the quote using state
+            className={`block cursor-pointer ${quote ? '' : 'pointer-events-none opacity-50'}`} // Disable link if no quote
+          >
+            {quote ? (
+              <blockquote className="text-xl italic text-purple-700 border-l-4 border-purple-500 pl-4">
+                "{quote}"
+              </blockquote>
+            ) : (
+              <p className="text-center text-gray-500">Select your mood to get a quote!</p>
             )}
+            <p className="mt-2 text-right text-purple-600">- Random Author</p>
+          </Link>
+        </section>
+
+        <section className="bg-white rounded-lg shadow-md p-6 transition-all hover:shadow-lg mt-8">
+          <h2 className="text-2xl font-bold mb-4">How are you feeling today?</h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {moodOptions.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleMoodSelection(option.label)}
+                className={`flex items-center space-x-2 p-3 rounded-full transition-colors ${selectedMood === option.label ? 'bg-purple-500 text-white' : 'bg-purple-100 hover:bg-purple-200'}`}
+                aria-label={`Select ${option.label} mood`}
+              >
+                <span className={`text-2xl ${option.color}`}>{option.icon}</span>
+                <span>{option.label}</span>
+              </button>
+            ))}
           </div>
+          {selectedMood && (
+            <p className="mt-4 text-center text-lg">
+              You're feeling <span className="font-semibold">{selectedMood}</span> today!
+            </p>
+          )}
         </section>
       </main>
 
