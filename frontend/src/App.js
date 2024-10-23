@@ -1,13 +1,13 @@
-import React from "react"; 
+import React from "react";  
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ProfileProvider } from './context/ProfileContext';
-import  FavoritesProvider  from './context/FavoritesContext';
 import { AuthProvider } from './context/AuthContext';
+import FavoritesProvider from './context/FavoritesContext';
 
 // Pages
 import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";  // Updated to use LoginPage
-import SignupPage from "./pages/SignupPage"; // New SignupPage component
+import LoginPage from "./pages/LoginPage";  
+import SignupPage from "./pages/SignupPage"; 
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import FavoritesPage from "./pages/FavoritesPage";
@@ -41,35 +41,35 @@ const App = () => {
         <FavoritesProvider>
           <Router>
             <Routes>
-              {/* Public Routes */}
+              
               <Route 
                 path="/" 
                 element={
-                  <PublicRoute>
+                  //<PublicRoute>
                     <LandingPage />
-                  </PublicRoute>
+                  //</PublicRoute>
                 } 
               />
               <Route 
                 path="/login" 
                 element={
-                  <PublicRoute>
-                    <LoginPage />  // Updated to use LoginPage
-                  </PublicRoute>
+                  //<PublicRoute>
+                    <LoginPage /> 
+                  //</PublicRoute>
                 } 
               />
               <Route 
                 path="/signup" 
                 element={
-                  <PublicRoute>
-                    <SignupPage />  // New SignupPage route
-                  </PublicRoute>
+                  //<PublicRoute>
+                    <SignupPage /> 
+                  //</PublicRoute>
                 } 
               />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* Protected Routes */}
+              
               <Route 
                 path="/homepage" 
                 element={
@@ -111,7 +111,7 @@ const App = () => {
                 } 
               />
 
-              {/* Catch all route - redirect to landing page */}
+              
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Router>

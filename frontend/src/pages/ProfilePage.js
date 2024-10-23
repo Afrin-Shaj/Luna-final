@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from "react";
 import { FaUser } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FavoritesContext } from "../context/FavoritesContext"; // Assuming you have context for favorites
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -15,7 +14,6 @@ const ProfilePage = () => {
   });
   const [editable, setEditable] = useState(false);
   const [timeTrigger, setTimeTrigger] = useState(""); // Time input for email trigger
-  const { favorites } = useContext(FavoritesContext); // Get favorites from context
   const navigate = useNavigate();
 
   // Email trigger placeholder
@@ -187,12 +185,7 @@ const ProfilePage = () => {
         </section>
 
         {/* Favorite Quotes Count */}
-        <section className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold mb-4">Favorite Quotes</h2>
-          <p className="text-lg">
-            You have <span className="font-bold">{favorites.length}</span> favorite quotes.
-          </p>
-        </section>
+        
       </main>
     </div>
   );

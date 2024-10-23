@@ -1,4 +1,4 @@
-import React, { useState } from 'react';  
+import React, { useState } from 'react';   
 import { FaMoon, FaBook, FaPrayingHands, FaHeart } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
@@ -10,9 +10,9 @@ const UserInputPage = () => {
     preference: "",
   });
 
-  const [timeTrigger, setTimeTrigger] = useState(""); // New state for the email trigger time
+  const [timeTrigger, setTimeTrigger] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();  // React Router's navigate hook
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,21 +22,17 @@ const UserInputPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    setLoading(true); // Show loading state
+    setLoading(true);
     
-    // Simulate email sending process with a time delay
     setTimeout(() => {
       console.log("Automated email sent with user info:", formData);
       navigate('/homepage');
-    }, 5000);  // Delay of 5 seconds (simulates email sending delay)
+    }, 5000);
 
-    // If timeTrigger is set, schedule email to be "sent" at that time
     if (timeTrigger) {
       const currentTime = new Date();
       const triggerTime = new Date();
       const [hours, minutes] = timeTrigger.split(":").map(Number);
-
-      // Set the time trigger based on the input (e.g., 14:30)
       triggerTime.setHours(hours, minutes, 0, 0);
 
       const delay = triggerTime - currentTime;
@@ -66,7 +62,7 @@ const UserInputPage = () => {
           {/* Interest input */}
           <div>
             <label htmlFor="interest" className="block text-gray-700 font-semibold mb-2">
-              Interest (e.g., Sports, Technology, Art)
+              Interest (e.g., Sports, Technology, Art, Meme)
             </label>
             <input
               type="text"
@@ -80,21 +76,26 @@ const UserInputPage = () => {
             />
           </div>
 
-          {/* Religion input */}
+          {/* Religion dropdown */}
           <div>
             <label htmlFor="religion" className="block text-gray-700 font-semibold mb-2">
-              Religion (e.g., Christianity, Islam, Hindhu)
+              Category
             </label>
-            <input
-              type="text"
+            <select
               id="religion"
               name="religion"
               value={formData.religion}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter your religion"
               required
-            />
+            >
+              <option value="" disabled>Select your category</option>
+              <option value="Quran">Quran</option>
+              <option value="Bible">Bible</option>
+              <option value="Bhagavad Gita">Bhagavad Gita</option>
+              <option value="Thirukkural">Thirukkural</option>
+              <option value="Random">Random</option>
+            </select>
           </div>
 
           {/* Profession input */}
@@ -150,7 +151,7 @@ const UserInputPage = () => {
             <button
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-              disabled={loading}  // Disable button when loading
+              disabled={loading}
             >
               {loading ? "Submitting..." : "Submit"}
             </button>

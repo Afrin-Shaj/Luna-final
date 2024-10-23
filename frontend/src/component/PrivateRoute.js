@@ -3,7 +3,7 @@ import authService from '../services/authService';
 
 const PrivateRoute = ({ children }) => {
   const token = authService.getCurrentUser();
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/login" replace />;
 };
 
 export default PrivateRoute;

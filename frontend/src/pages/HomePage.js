@@ -1,6 +1,7 @@
-import React, { useState } from "react"; 
+import React, { useState, useContext } from "react";  
 import { FaMoon, FaSearch, FaHeart, FaUser, FaSmile, FaSadTear, FaMeh, FaGrinStars } from "react-icons/fa";
 import { useNavigate, Link } from 'react-router-dom';
+import { FavoritesContext } from "../context/FavoritesContext"; // Assuming you have context for favorites
 
 const quotesData = {
   Happy: [
@@ -25,6 +26,9 @@ const HomePage = () => {
   const [mood, setMood] = useState(null);
   const [quote, setQuote] = useState("");
   const [selectedMood, setSelectedMood] = useState(""); // Store selected mood
+  const [rating, setRating] = useState(0); // For rating feedback
+  const [comments, setComments] = useState(""); // For comments feedback
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false); // To show confirmation message
   const navigate = useNavigate();
 
   const moodOptions = [
@@ -39,6 +43,21 @@ const HomePage = () => {
     setSelectedMood(selectedMood); // Set the selected mood
     const randomQuote = quotesData[selectedMood][Math.floor(Math.random() * quotesData[selectedMood].length)];
     setQuote(randomQuote);
+  };
+
+  const { favorites } = useContext(FavoritesContext); // Get favorites from context
+
+  const handleFeedbackSubmit = (e) => {
+    e.preventDefault();
+    // Handle the feedback submission logic (e.g., send it to the backend or store locally)
+    console.log({ rating, comments });
+
+    // Reset the form and show the confirmation message
+    setRating(0);
+    setComments("");
+    setFeedbackSubmitted(true);
+    
+    // Optionally, you can also send feedback to a backend or analytics
   };
 
   return (
@@ -59,16 +78,18 @@ const HomePage = () => {
             </h2>
             <p>Welcome back, Luna!</p>
           </div>
-
           <div 
             className="w-full md:w-1/4 bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105 cursor-pointer"
             onClick={() => navigate("/favorites")}
           >
-            <h2 className="text-xl font-semibold mb-2 flex items-center">
-              <FaHeart className="mr-2" /> Favorites
-            </h2>
-            <p>You have 5 favorite quotes.</p>
-          </div>
+          <div>
+          <h2 className="text-xl font-semibold mb-2 flex items-center">
+            <FaHeart className="mr-2" /> Favorites</h2>
+          <p>
+            You have <span className="font-bold">{favorites.length}</span> favorite quotes.
+          </p>
+        </div>
+        </div>
 
           {/* Stylish Search Bar */}
           <div className="w-full md:w-1/2 bg-white rounded-full shadow-md p-3 flex items-center space-x-3 transition-transform hover:scale-105">
@@ -120,9 +141,49 @@ const HomePage = () => {
             </p>
           )}
         </section>
-      </main>
 
-      
+        <section className="bg-white rounded-lg shadow-md p-6 transition-all hover:shadow-lg mt-8">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Feedback</h2>
+
+            {!feedbackSubmitted ? (
+              <form onSubmit={handleFeedbackSubmit}>
+                <label className="block mb-2 text-lg font-semibold">Rate this quote:</label>
+                <div className="flex space-x-2 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      onClick={() => setRating(star)}
+                      className={`text-2xl ${star <= rating ? 'text-yellow-500' : 'text-gray-300'}`}
+                    >
+                      &#9733;
+                    </button>
+                  ))}
+                </div>
+
+                <label className="block mb-2 text-lg font-semibold">Comments:</label>
+                <textarea
+                  value={comments}
+                  onChange={(e) => setComments(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+                  rows="4"
+                  placeholder="Share your thoughts..."
+                ></textarea>
+
+                <button
+                  type="submit"
+                  className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all"
+                >
+                  Submit Feedback
+                </button>
+              </form>
+            ) : (
+              <p className="text-green-500 font-semibold mt-4">Thank you for your feedback!</p>
+            )}
+          </div>
+        </section>
+      </main>
     </div>
   );
 };
