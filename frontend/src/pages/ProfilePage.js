@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react"; 
 import { FaUser } from "react-icons/fa";
-import axios from "axios"; // Assuming you will be using this for email sending and backend updates.
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { FavoritesContext } from "../context/FavoritesContext"; // Assuming you have context for favorites
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -13,11 +15,12 @@ const ProfilePage = () => {
   });
   const [editable, setEditable] = useState(false);
   const [timeTrigger, setTimeTrigger] = useState(""); // Time input for email trigger
+  const { favorites } = useContext(FavoritesContext); // Get favorites from context
+  const navigate = useNavigate();
 
-  // Placeholder for backend email trigger logic
+  // Email trigger placeholder
   useEffect(() => {
     if (timeTrigger) {
-      // This should ideally send a request to the backend to trigger the email
       console.log("Email will be triggered at:", timeTrigger);
     }
   }, [timeTrigger]);
@@ -38,12 +41,25 @@ const ProfilePage = () => {
       });
   };
 
+  const handleLogout = () => {
+    // Clear the authentication token
+    localStorage.removeItem("authToken");
+    navigate("/login"); // Redirect to login or landing page
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-purple-300 via-purple-100 to-purple-400 text-purple-900">
-      <header className="bg-purple-600 text-white p-6 shadow-lg">
+      <header className="bg-purple-600 text-white p-6 shadow-lg flex justify-between items-center">
         <h1 className="text-4xl font-bold">LunaQ - Profile</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
       </header>
       <main className="container mx-auto p-8 space-y-8">
+        {/* Profile Information */}
         <section className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-3xl font-semibold mb-4 flex items-center">
             <FaUser className="mr-3" /> Profile Information
@@ -151,7 +167,7 @@ const ProfilePage = () => {
           </div>
         </section>
 
-        {/* Section for setting up a time trigger for automatic email */}
+        {/* Email Notification Time Trigger Section */}
         <section className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-4">Set Time for Email Notification</h2>
           <div className="flex flex-col md:flex-row items-center gap-4">
@@ -169,11 +185,15 @@ const ProfilePage = () => {
             </button>
           </div>
         </section>
-      </main>
 
-      <footer className="bg-purple-800 text-white text-center p-4">
-        <p>&copy; 2024 LunaQ. All rights reserved.</p>
-      </footer>
+        {/* Favorite Quotes Count */}
+        <section className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4">Favorite Quotes</h2>
+          <p className="text-lg">
+            You have <span className="font-bold">{favorites.length}</span> favorite quotes.
+          </p>
+        </section>
+      </main>
     </div>
   );
 };

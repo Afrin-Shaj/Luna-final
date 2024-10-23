@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';  
 import { FaMoon, FaBook, FaPrayingHands, FaHeart } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +10,7 @@ const UserInputPage = () => {
     preference: "",
   });
 
+  const [timeTrigger, setTimeTrigger] = useState(""); // New state for the email trigger time
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();  // React Router's navigate hook
 
@@ -25,12 +26,30 @@ const UserInputPage = () => {
     
     // Simulate email sending process with a time delay
     setTimeout(() => {
-      // Simulate email trigger with user info logged in console
       console.log("Automated email sent with user info:", formData);
-
-      // After sending the email, navigate to the homepage
       navigate('/homepage');
     }, 5000);  // Delay of 5 seconds (simulates email sending delay)
+
+    // If timeTrigger is set, schedule email to be "sent" at that time
+    if (timeTrigger) {
+      const currentTime = new Date();
+      const triggerTime = new Date();
+      const [hours, minutes] = timeTrigger.split(":").map(Number);
+
+      // Set the time trigger based on the input (e.g., 14:30)
+      triggerTime.setHours(hours, minutes, 0, 0);
+
+      const delay = triggerTime - currentTime;
+
+      if (delay > 0) {
+        setTimeout(() => {
+          console.log("Scheduled email sent at:", timeTrigger, "with user info:", formData);
+          alert(`Scheduled email sent at ${timeTrigger}`);
+        }, delay);
+      } else {
+        console.error("Invalid time for email scheduling");
+      }
+    }
   };
 
   return (
@@ -44,8 +63,11 @@ const UserInputPage = () => {
         <h2 className="text-3xl font-bold text-center mb-2">User Information</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Interest input */}
           <div>
-            <label htmlFor="interest" className="sr-only">Interest</label>
+            <label htmlFor="interest" className="block text-gray-700 font-semibold mb-2">
+              Interest (e.g., Sports, Technology, Art)
+            </label>
             <input
               type="text"
               id="interest"
@@ -53,12 +75,16 @@ const UserInputPage = () => {
               value={formData.interest}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Interest"
+              placeholder="Enter your interests"
               required
             />
           </div>
+
+          {/* Religion input */}
           <div>
-            <label htmlFor="religion" className="sr-only">Religion</label>
+            <label htmlFor="religion" className="block text-gray-700 font-semibold mb-2">
+              Religion (e.g., Christianity, Islam, Hindhu)
+            </label>
             <input
               type="text"
               id="religion"
@@ -66,12 +92,16 @@ const UserInputPage = () => {
               value={formData.religion}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Religion"
+              placeholder="Enter your religion"
               required
             />
           </div>
+
+          {/* Profession input */}
           <div>
-            <label htmlFor="profession" className="sr-only">Profession</label>
+            <label htmlFor="profession" className="block text-gray-700 font-semibold mb-2">
+              Profession (e.g., Software Engineer, Teacher, Doctor)
+            </label>
             <input
               type="text"
               id="profession"
@@ -79,12 +109,16 @@ const UserInputPage = () => {
               value={formData.profession}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Profession"
+              placeholder="Enter your profession"
               required
             />
           </div>
+
+          {/* Preference input */}
           <div>
-            <label htmlFor="preference" className="sr-only">Preference</label>
+            <label htmlFor="preference" className="block text-gray-700 font-semibold mb-2">
+              Preference (e.g., Motivational, Inspiring)
+            </label>
             <input
               type="text"
               id="preference"
@@ -92,10 +126,26 @@ const UserInputPage = () => {
               value={formData.preference}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Preference"
+              placeholder="Enter your preferences"
               required
             />
           </div>
+
+          {/* Time input for scheduling the email trigger */}
+          <div>
+            <label htmlFor="timeTrigger" className="block text-gray-700 font-semibold mb-2">
+              Set Time for Email Trigger
+            </label>
+            <input
+              type="time"
+              id="timeTrigger"
+              value={timeTrigger}
+              onChange={(e) => setTimeTrigger(e.target.value)}
+              className="w-full px-3 py-2 border border-purple-500 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Set Time for Email Trigger"
+            />
+          </div>
+
           <div>
             <button
               type="submit"
@@ -108,7 +158,6 @@ const UserInputPage = () => {
         </form>
       </div>
 
-      {/* Modern Footer with interactive flipping cards */}
       <footer className="w-full bg-purple-700 text-white py-8 mt-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Card 1 */}

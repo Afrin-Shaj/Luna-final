@@ -122,9 +122,7 @@ const HomePage = () => {
         </section>
       </main>
 
-      <footer className="bg-purple-800 text-white text-center p-4">
-        <p>&copy; 2024 LunaQ. All rights reserved.</p>
-      </footer>
+      
     </div>
   );
 };

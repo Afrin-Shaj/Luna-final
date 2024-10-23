@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { FaHeart, FaDownload, FaShareAlt } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FavoritesContext } from '../context/FavoritesContext'; // Import the context
@@ -9,10 +9,16 @@ const QuoteDetailPage = () => {
   const { addToFavorites } = useContext(FavoritesContext); // Use context to access addToFavorites
   const quote = location.state?.quote;
 
+  useEffect(() => {
+    console.log('addToFavorites from context: ', addToFavorites); // Check if function is available
+  }, [addToFavorites]);
+
   const handleAddToFavorites = () => {
     if (quote) {
       addToFavorites(quote); // Call context function to add quote to favorites
       console.log("Added to favorites:", quote);
+    } else {
+      console.log('No quote to add.');
     }
   };
 
