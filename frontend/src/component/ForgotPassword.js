@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import authService from '../services/authService';
+import { authService } from '../services/api';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');

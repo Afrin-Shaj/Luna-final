@@ -1,62 +1,89 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import { config } from '../config/index.js';
+import { auth } from '../middleware/auth.js';
+
 const router = express.Router();
 
-// @route   POST /api/auth/signup
-// @desc    Register a new user
+// Signup
 router.post('/signup', async (req, res) => {
-  const { name, email, password } = req.body;
-
   try {
-    // Check if the user already exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ msg: 'User already exists' });
+    const { name, email, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create a new user instance
-    user = new User({ name, email, password });
+    // Create new user
+    const user = new User({
+      name,
+      email,
+      password,
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${name}`
+    });
 
-    // Save the user to the database
     await user.save();
 
-    // Create and sign a JWT token
-    const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // Generate token
+    const token = jwt.sign({ userId: user._id }, config.jwtSecret, {
+      expiresIn: config.jwtExpiration
+    });
 
-    // Send back the token
-    res.status(201).json({ token });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server error' });
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 });
 
+// Login
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    let user = await User.findOne({ email });
+    const { email, password } = req.body;
+
+    // Find user
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ msg: 'Invalid Credential'});
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Check password
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid Credential'});
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
-    const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    // Send back the token
-    res.status(200).json({ token });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server error' });
+    // Generate token
+    const token = jwt.sign({ userId: user._id }, config.jwtSecret, {
+      expiresIn: config.jwtExpiration
+    });
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging in', error: error.message });
   }
 });
-  
+router.post('/updateProfile', (req, res) => {
+    // Your update logic here
+    res.send('Profile updated successfully');
+});
 
-module.exports = router;
+export default router;

@@ -1,28 +1,69 @@
-import React, { useState } from 'react';   
+import React, { useState, useEffect } from 'react';   
 import { FaMoon, FaBook, FaPrayingHands, FaHeart } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const UserInputPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     interest: "",
-    religion: "",
+    category: "",
     profession: "",
     preference: "",
   });
 
   const [timeTrigger, setTimeTrigger] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      navigate('/signup');
+    }
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    
     setLoading(true);
+    setError("");
+
+    const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('authToken');
+    const updatedData = {
+      ...existingData,
+      interest: formData.interest,
+      category: formData.religion,
+      profession: formData.profession,
+      preference: formData.preference,
+      timeTrigger: timeTrigger
+    };
+    try {
+      const response = await axios.post('/api/auth/updateProfile', {
+        userId,
+        ...updatedData
+      }, {
+        headers: {
+          Authorization: token
+        }
+      });
+
+      localStorage.setItem('userData', JSON.stringify(updatedData));
+      navigate('/profile');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+    
     
     setTimeout(() => {
       console.log("Automated email sent with user info:", formData);
@@ -48,7 +89,7 @@ const UserInputPage = () => {
     }
   };
 
-  return (
+return (
     <div className="min-h-screen flex flex-col items-center justify-between bg-purple-500 relative overflow-hidden py-12">
       <div className="flex items-center justify-center mb-8 z-10">
         <FaMoon className="text-white text-4xl mr-2" />

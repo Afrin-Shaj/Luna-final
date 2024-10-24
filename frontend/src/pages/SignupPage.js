@@ -58,8 +58,12 @@ const SignupPage = () => {
 
     try {
       const res = await axios.post(apiUrl, payload);
-      localStorage.setItem('token', res.data.token);  // Store token on successful signup
-
+      localStorage.setItem('authToken', res.data.token);
+      localStorage.setItem('userId', res.data.userId);
+      localStorage.setItem('userData', JSON.stringify({
+        name: formData.Name,
+        email: formData.email }));
+        
       // Reset form and navigate
       setFormData({ Name: "", email: "", password: "" });
       setErrors({});

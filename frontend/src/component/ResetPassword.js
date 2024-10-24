@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
-import authService from '../services/authService';
+import { authService } from '../services/api';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');

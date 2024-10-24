@@ -1,48 +1,113 @@
-import React, { useState, useEffect, useContext } from "react"; 
+import React, { useState, useEffect } from "react"; 
 import { FaUser } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
-    name: "Luna",
-    email: "luna@example.com",
-    preferences: "Motivation, Self-improvement",
-    religion: "Christianity",
-    interest: "Sports, Meme",
-    profession: "Software Engineer",
+    name: "",
+    email: "",
+    preferences: "",
+    category: "",
+    interest: "",
+    profession: "",
   });
+  
   const [editable, setEditable] = useState(false);
   const [timeTrigger, setTimeTrigger] = useState(""); // Time input for email trigger
   const navigate = useNavigate();
 
-  // Email trigger placeholder
   useEffect(() => {
-    if (timeTrigger) {
-      console.log("Email will be triggered at:", timeTrigger);
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+      navigate('/signup');
+      return;
     }
-  }, [timeTrigger]);
+
+    setProfile({
+      name: userData.name || '',
+      email: userData.email || '',
+      preferences: userData.preference || '',
+      religion: userData.category || '',
+      interest: userData.interest || '',
+      profession: userData.profession || '',
+    });
+    setTimeTrigger(userData.timeTrigger || '');
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get(`/api/user/${userId}`, {
+          headers: {
+            Authorization: token
+          }
+        });
+        
+        const userData = response.data.user;
+        setProfile({
+          name: userData.name,
+          email: userData.email,
+          preferences: userData.preference,
+          religion: userData.category,
+          interest: userData.interest,
+          profession: userData.profession,
+        });
+        setTimeTrigger(userData.timeTrigger);
+        
+        localStorage.setItem('userData', JSON.stringify(userData));
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+
+    if (userId) { // Ensure userId is defined before making the API call
+      fetchUserProfile();
+    }
+  }, [navigate]); 
+  // Fetch when userId changes
 
   const handleInputChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    setEditable(false);
-    // Backend API call to save updated user details
-    axios.post("/api/updateProfile", profile)
-      .then(() => {
-        alert("Profile updated successfully!");
-      })
-      .catch((error) => {
-        console.error("Error updating profile:", error);
+  const handleSave = async () => {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('authToken');
+
+    try {
+      await axios.post("/api/auth/updateProfile", {
+        userId,
+        ...profile,
+        timeTrigger
+      }, {
+        headers: {
+          Authorization: token
+        }
       });
+
+      localStorage.setItem('userData', JSON.stringify({
+        ...profile,
+        timeTrigger
+      }));
+
+      setEditable(false);
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
+    }
   };
+
 
   const handleLogout = () => {
     // Clear the authentication token
     localStorage.removeItem("authToken");
-    navigate("/login"); // Redirect to login or landing page
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userData"); // Clear userId from local storage
+    navigate("/signup"); // Redirect to login or landing page
   };
 
   return (
@@ -183,9 +248,6 @@ const ProfilePage = () => {
             </button>
           </div>
         </section>
-
-        {/* Favorite Quotes Count */}
-        
       </main>
     </div>
   );

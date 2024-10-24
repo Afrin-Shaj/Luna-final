@@ -1,6 +1,6 @@
 import React from "react";  
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { ProfileProvider } from './context/ProfileContext';
+import { UserProvider } from './context/ProfileContext';
 import { AuthProvider } from './context/AuthContext';
 import FavoritesProvider from './context/FavoritesContext';
 

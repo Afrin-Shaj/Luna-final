@@ -1,30 +1,27 @@
 import React, { createContext, useContext, useState } from 'react';
 
-// Create a Context for the user profile
-const ProfileContext = createContext();
+const UserContext = createContext();
 
-// Create a Provider component
-export const ProfileProvider = ({ children }) => {
-  const [profile, setProfile] = useState({
-    name: "Luna",
-    email: "luna@example.com",
-    preferences: "Motivation, Self-improvement",
-    religion: "Christianity",
-    interest: "Sports, Meme",
-    profession: "Software Engineer",
+export const UserProvider = ({ children }) => {
+  const [userData, setUserData] = useState({
+    name: '',
+    email: '',
+    category: '',
+    preference: '',
+    profession: '',
+    interest: '',
+    timeTrigger: ''
   });
 
+  const updateUserData = (newData) => {
+    setUserData(prev => ({ ...prev, ...newData }));
+  };
+
   return (
-    <ProfileContext.Provider value={{ profile, setProfile }}>
+    <UserContext.Provider value={{ userData, updateUserData }}>
       {children}
-    </ProfileContext.Provider>
+    </UserContext.Provider>
   );
 };
 
-// Create a custom hook to use the ProfileContext
-export const useProfile = () => {
-  return useContext(ProfileContext);
-};
-
-// Export the ProfileContext for potential use in other components
-export default ProfileContext;
+export const useUser = () => useContext(UserContext);
